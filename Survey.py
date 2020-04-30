@@ -20,7 +20,7 @@ for row in cursor:
     element = [elem for elem in row]
     surveyIDs.append(element[0])
 
-#3. Creating a master list identifying all the quesions for each survey                                                
+# 3. Creating a master list identifying all the quesions for each survey                                                
 masterList = []                                                                                                       
 cursor = conn.cursor()                                     
 for i in surveyIDs:
@@ -32,6 +32,26 @@ for i in surveyIDs:
                    'AND S.QuestionId = Q.QuestionId)) as t ORDER BY QuestionId;')
     for row in cursor:
         masterList.append(list(row))
+
+# 4. Getting answers 
+# masterList = [[1,1,1],[1,2,1],[1,3,0],....]
+cursor = conn.cursor()
+pointer = []
+for pointer in masterList:
+    if pointer[2] != 0:
+        currentSurvey = pointer[0]
+        currentQuestion = pointer[1]
+        print(type(currentSurvey))
+        print(type(currentQuestion))
+        cursor.execute('''SELECT U.UserId, U.[User_Name], COALESCE (
+                        (SELECT A.Answer_Value FROM Answer as A 
+                        WHERE A.SurveyId = ''' + str(currentSurvey) + 
+                        'AND A.QuestionId = ' + str(currentQuestion) + 
+                        'AND A.UserId = U.UserId), -1) as Q1 FROM [User] as U')
+    for row in cursor:
+        print(row)
+
+   
 
 
 
