@@ -20,4 +20,18 @@ for row in cursor:
     element = [elem for elem in row]
     surveyIDs.append(element[0])
 
+#3. Creating a master list identifying all the quesions for each survey                                                
+masterList = []                                                                                                       
+cursor = conn.cursor()                                     
+for i in surveyIDs:
+    cursor.execute('SELECT * FROM(SELECT SurveyId, QuestionId, ' + str(i) +
+                   'as InSurvey FROM SurveyStructure WHERE SurveyId = ' + str(i) +
+                   'UNION SELECT ' + str(i) +
+                   '''as SurveyId, Q.QuestionId, 0 as InSurvey FROM Question as Q
+                   WHERE NOT EXISTS (SELECT * FROM SurveyStructure as S WHERE S.SurveyId = ''' + str(i) +
+                   'AND S.QuestionId = Q.QuestionId)) as t ORDER BY QuestionId;')
+    for row in cursor:
+        masterList.append(list(row))
+
+
 
