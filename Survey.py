@@ -1,6 +1,5 @@
 # 1. Connection with the SQL Server
 import pyodbc
-import pandas as pd
 import time
 
 conn = pyodbc.connect('Driver={SQL Server};'
@@ -21,6 +20,7 @@ surveyIDs = []
 for row in cursor:
     element = [elem for elem in row]
     surveyIDs.append(element[0])
+
 
 # 3. Creating a master list identifying all the quesions for each survey                                                
 masterList = []                                                                                                       
@@ -60,20 +60,38 @@ for pointer in masterList:
         TempRow = []
         currentSurvey = pointer[0]
         currentQuestion = pointer[1]
-        cursor.execute('''SELECT TOP 1 U.UserId, U.[User_Name], COALESCE (
+        cursor.execute('''SELECT TOP 3 U.UserId, U.[User_Name], COALESCE (
                         (SELECT A.Answer_Value FROM Answer as A 
                         WHERE A.SurveyId = ''' + str(currentSurvey) + 
                         'AND A.QuestionId = ' + str(currentQuestion) + 
                         'AND A.UserId = U.UserId), -1) as Q1 FROM [User] as U')
 
         for row in cursor:
-            print(row)
-            print(type(row))
             TempRow.append(row)
 
         Matrix.append(TempRow)
 
-print(Matrix)
+#print(Matrix)
+OMatrix = []
+OSMatrix = []
+count = 0
+for question in Matrix:
+    #print('\nQuestion\n')
+    #print(question)
+    #print(type(question))
+    for elem in question:
+        #print('\nElement from question:')
+        #print(type(elem))
+        #print(elem)
+        for individual in elem:
+            OSMatrix.append(individual)
+        OMatrix.append(OSMatrix)
+        OSMatrix = []
+
+print(OMatrix)
+
+
+    
 
 
 
