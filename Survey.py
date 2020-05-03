@@ -57,22 +57,21 @@ pointer = []
 Matrix = []
 for pointer in masterList:
     if pointer[2] != 0:
+        TempRow = []
         currentSurvey = pointer[0]
         currentQuestion = pointer[1]
-        cursor.execute('''SELECT TOP 2 U.UserId, U.[User_Name], COALESCE (
+        cursor.execute('''SELECT TOP 1 U.UserId, U.[User_Name], COALESCE (
                         (SELECT A.Answer_Value FROM Answer as A 
                         WHERE A.SurveyId = ''' + str(currentSurvey) + 
                         'AND A.QuestionId = ' + str(currentQuestion) + 
                         'AND A.UserId = U.UserId), -1) as Q1 FROM [User] as U')
-    TempRow = []
-    for row in cursor:
-        print(row)
-        element = [elem for elem in row]
-        print(element)
-        TempRow.append(element[0])
-        print(TempRow)
 
-    Matrix.append(TempRow)
+        for row in cursor:
+            print(row)
+            print(type(row))
+            TempRow.append(row)
+
+        Matrix.append(TempRow)
 
 print(Matrix)
 
