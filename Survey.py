@@ -1,6 +1,5 @@
 # Importing libraries
 import pyodbc
-import time
 import csv
 
 # 1. Connection with the SQL Server
