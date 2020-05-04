@@ -1,17 +1,12 @@
-# 1. Connection with the SQL Server
+# Importing libraries
 import pyodbc
 import time
 
+# 1. Connection with the SQL Server
 conn = pyodbc.connect('Driver={SQL Server};'
                       'Server=ABRAXAS-WINDOWS;'
                       'Database=Survey_Sample_A18;'
                       'Trusted_Connection=yes;')
-
-# Reference
-#cursor = conn.cursor()
-#cursor.execute('SELECT U.UserId, U.[User_Name], COALESCE ((SELECT A.Answer_Value FROM Answer as A WHERE A.SurveyId = 1 AND A.QuestionId = 1 AND A.UserId = U.UserId), -1) as Q1 FROM [User] as U')
-#for row in cursor:
-#    print(row)
 
 # 2. Getting all Survey IDs
 cursor = conn.cursor()
@@ -21,9 +16,8 @@ for row in cursor:
     element = [elem for elem in row]
     surveyIDs.append(element[0])
 
-
-# 3. Creating a master list identifying all the quesions for each survey                                                
-masterList = []                                                                                                       
+# 3. Creating a survey list identifying all the quesions for each survey                                                
+surveyList = []                                                                                                       
 cursor = conn.cursor()                                     
 for i in surveyIDs:
     cursor.execute('SELECT * FROM(SELECT SurveyId, QuestionId, ' + str(i) +
@@ -33,29 +27,13 @@ for i in surveyIDs:
                    WHERE NOT EXISTS (SELECT * FROM SurveyStructure as S WHERE S.SurveyId = ''' + str(i) +
                    'AND S.QuestionId = Q.QuestionId)) as t ORDER BY QuestionId;')
     for row in cursor:
-        masterList.append(list(row))
+        surveyList.append(list(row))
 
 # 4. Getting answers 
-# masterList = [[1,1,1],[1,2,1],[1,3,0],....]
-
-#Matrix = []
-#print(type(Matrix))
-#a = 0
-
-#while a < 3:
-#    b = 0
-#    SubMatrix = []
-#    while b < 3:
-#        SubMatrix.append(7)
-#        b = b + 1
-#    Matrix.append(SubMatrix)
-#    a = a +1
-#print(Matrix)
-
 cursor = conn.cursor()
 pointer = []
 Matrix = []
-for pointer in masterList:
+for pointer in surveyList:
     if pointer[2] != 0:
         TempRow = []
         currentSurvey = pointer[0]
@@ -65,44 +43,31 @@ for pointer in masterList:
                         WHERE A.SurveyId = ''' + str(currentSurvey) + 
                         'AND A.QuestionId = ' + str(currentQuestion) + 
                         'AND A.UserId = U.UserId), -1) as Q1 FROM [User] as U')
-
         for row in cursor:
             TempRow.append(row)
-
         Matrix.append(TempRow)
 
-#print(Matrix)
+#5 Organzing the answers into a MasterList
 OMatrix = []
 OSMatrix = []
-count = 0
 for question in Matrix:
-    #print('\nQuestion\n')
-    #print(question)
-    #print(type(question))
     for elem in question:
-        #print('\nElement from question:')
-        #print(type(elem))
-        #print(elem)
         for individual in elem:
             OSMatrix.append(individual)
         OMatrix.append(OSMatrix)
         OSMatrix = []
 
-print(OMatrix)
+#6 Formating the Master List
+numUsers = int(len(OMatrix) / 5)
+OFMatrix = []
+OFMatrix = OMatrix[0:numUsers]
+value = 1
+while value < 5:
+    x = 0
+    for x in range(numUsers):
+        OFMatrix[x].append(OMatrix[x + numUsers * value][2])
+    value = value + 1
 
-
-    
-
-
-
-
-
-
-
-
-    
-
-   
-
-
+#7 Converting to CSV
+print(OFMatrix)
 
