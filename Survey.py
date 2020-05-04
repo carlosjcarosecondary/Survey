@@ -1,6 +1,7 @@
 # Importing libraries
 import pyodbc
 import time
+import csv
 
 # 1. Connection with the SQL Server
 conn = pyodbc.connect('Driver={SQL Server};'
@@ -38,7 +39,7 @@ for pointer in surveyList:
         TempRow = []
         currentSurvey = pointer[0]
         currentQuestion = pointer[1]
-        cursor.execute('''SELECT TOP 3 U.UserId, U.[User_Name], COALESCE (
+        cursor.execute('''SELECT U.UserId, U.[User_Name], COALESCE (
                         (SELECT A.Answer_Value FROM Answer as A 
                         WHERE A.SurveyId = ''' + str(currentSurvey) + 
                         'AND A.QuestionId = ' + str(currentQuestion) + 
@@ -69,5 +70,17 @@ while value < 5:
     value = value + 1
 
 #7 Converting to CSV
-print(OFMatrix)
 
+fields = ['User ID', 'User Name', 'Survey 1 - Q1', 'Survey 1 - Q2', 'Survey 2 -Q2', 'Survey 2 - Q3', 'Survey 3 - Q']
+    
+# name of csv file  
+filename = "survey_report.csv"
+    
+# writing to csv file  
+with open(filename, 'w') as csvfile:  
+    # creating a csv writer object  
+    csvwriter = csv.writer(csvfile)  
+    # writing the fields  
+    csvwriter.writerow(fields)  
+    # writing the data rows  
+    csvwriter.writerows(OFMatrix) 
