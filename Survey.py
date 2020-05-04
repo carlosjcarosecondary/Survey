@@ -30,7 +30,7 @@ for i in surveyIDs:
     for row in cursor:
         surveyList.append(list(row))
 
-# 4. Getting answers 
+# 4. Getting the answers from each survey
 cursor = conn.cursor()
 pointer = []
 Matrix = []
@@ -70,10 +70,7 @@ while value < 5:
     value = value + 1
 
 #7 Converting to CSV
-
-fields = ['User ID', 'User Name', 'Survey 1 - Q1', 'Survey 1 - Q2', 'Survey 2 -Q2', 'Survey 2 - Q3', 'Survey 3 - Q']
-    
-# name of csv file  
+fields = ['User ID', 'User Name', 'Survey 1 - Q1', 'Survey 1 - Q2', 'Survey 2 -Q2', 'Survey 2 - Q3', 'Survey 3 - Q'] 
 filename = "survey_report.csv"
     
 # writing to csv file  
